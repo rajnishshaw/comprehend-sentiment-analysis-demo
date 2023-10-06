@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API Caller</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+        .container {
+            margin-top: 50px;
+            text-align: center;
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 60px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            max-height: 150px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Test Amazon Comprehend : Sentiment Analysis</h1>
+
+        <!-- Textarea and submit button -->
+        <textarea id="inputText" placeholder="Type your text here"></textarea><br>
+        <button onclick="submitData()">Submit</button>
+
+        <!-- Result will be shown here -->
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Function to handle submission
+        function submitData() {
+            const text = document.getElementById("inputText").value;
+			const data={
+				'review' : document.getElementById("inputText").value
+			};
+            fetch('https://catspdspw7.execute-api.us-east-1.amazonaws.com/checkSentiment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+                 // Get the div element by its id
+                 const resultDiv = document.getElementById("result");
+                
+                // Decide the color based on the API return value (assuming the API returns an object with a "status" field)
+                let color;
+                if (data.includes("POSITIVE")) {
+                    color = "green";
+                } else if (data.includes("NEGATIVE")) {
+                    color = "red";
+                } else if (data.includes("MIXED")) {
+                    color = "blue";
+                } else {
+                    color = "black";  // Default color
+                }
+                
+                // Change color
+                resultDiv.style.color = color;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Listen for "Enter" key press
+        document.getElementById("inputText").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                submitData();
+            }
+        });
+    </script>
+
+</body>
+</html>
